@@ -58,6 +58,7 @@ defmodule Cache do
   end
 
   defp fresh_value(nil), do: nil
+  defp fresh_value([value, nil]), do: value
   defp fresh_value([value, expires]) do
     if expires >= :os.system_time(:millisecond) do
       value
