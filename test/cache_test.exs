@@ -16,13 +16,13 @@ defmodule CacheTest do
     test "stores a value in the cache" do
       assert Cache.write("name", "Jeffrey") == :ok
 
-      assert Cache.dump == %{"name" => ["Jeffrey", nil]}
+      assert Cache.dump == %{"name" => {"Jeffrey", nil}}
     end
 
     test "stores a value with an expiration" do
-      assert Cache.write("name", "Jeffrey", expires: 10) == :ok
+      assert Cache.write("name", "Jeffrey", 10) == :ok
 
-      assert Cache.dump == %{"name" => ["Jeffrey", 10]}
+      assert Cache.dump == %{"name" => {"Jeffrey", 10}}
     end
   end
 
@@ -38,7 +38,7 @@ defmodule CacheTest do
     end
 
     test "returns nil if the key has expired" do
-      assert Cache.write("name", "Jeffrey", expires: past()) == :ok
+      assert Cache.write("name", "Jeffrey", past()) == :ok
 
       assert Cache.read("name") == nil
     end
@@ -53,7 +53,7 @@ defmodule CacheTest do
     end
 
     test "a hit returns the cached value and does not evaluate the function" do
-      Cache.write("title", "Developer", expires: future())
+      Cache.write("title", "Developer", future())
 
       fun = fn -> flunk("This should not be called") end
 
@@ -62,7 +62,7 @@ defmodule CacheTest do
 
     test "evaluates and caches the function if the previous value has already expired" do
       fun = fn -> "Developer" end
-      Cache.write("title", "Stooge", expires: past())
+      Cache.write("title", "Stooge", past())
 
       assert Cache.fetch("title", fun) == "Developer"
     end
@@ -75,7 +75,7 @@ defmodule CacheTest do
 
     # TODO: I think this makes sense
     test "returns nil if the value has expired" do
-      Cache.write("pancakes", "delicious", expires: past())
+      Cache.write("pancakes", "delicious", past())
 
       assert Cache.delete("pancakes") == nil
     end
